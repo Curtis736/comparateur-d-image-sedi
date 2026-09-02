@@ -16,7 +16,9 @@ logBuffer = []
 
 DEBUG_TO_PRINT = True
 
-LOG_PATH = "Logs"
+_SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.dirname(_SRC_DIR)
+LOG_PATH = os.path.join(_PROJECT_ROOT, "Logs")
 
 class Lvl(IntEnum) :
     SELF = -1

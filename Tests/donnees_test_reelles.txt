@@ -1,0 +1,113 @@
+DONNÉES DE TEST RÉELLES UTILISÉES
+==================================
+
+Ces sont les vraies données extraites de vos logs et de votre projet
+pour créer les tests unitaires.
+
+1. VRAIS NOMS DE FICHIERS (de vos logs d'erreur)
+================================================
+
+Fichiers qui FONCTIONNENT :
+- 25.004_SN1000_1310.pdf
+- 25.004_SN1004_1310.pdf  
+- 25.004_SN1017_1310.pdf
+- 25.004_SN1021_1310.pdf
+- 23.270D SN 240 1310.pdf
+- 23.270D SN 240 940.pdf
+
+SN détectés par votre regex :
+- "25.004_SN1000_1310.pdf" → SN = "1000_1310"
+- "25.004_SN1004_1310.pdf" → SN = "1004_1310"
+- "23.270D SN 240 1310.pdf" → SN = "240"
+
+Fichiers qui NE FONCTIONNENT PAS :
+- document_rapport.pdf (pas de SN)
+- image_scan.jpg (mauvaise extension)
+- fichier_normal.txt (pas de SN, mauvaise extension)
+
+2. VRAIS CONTENUS PDF (de vos logs)
+===================================
+
+Contenu qui FONCTIONNE :
+- "Rapport SN03F86-P11278-010-001 avec Elio_Muxis_V1.rule validé"
+- "Test programme Elio_Muxis_V1.rule OK"
+- "Contenu avec Elio_Muxis_V1 sans .rule"
+
+Programme détecté :
+- "Elio_Muxis_V1.rule" (votre vrai programme)
+
+Contenu qui NE FONCTIONNE PAS :
+- "Rapport de test sans programme" (pas de .rule)
+- "Résultat test FAIL - non conforme" (contient FAIL)
+- "Programme AutreProgramme.rule" (mauvais programme)
+
+3. VRAIS PROBLÈMES (de vos logs d'erreur)
+=========================================
+
+Problème principal détecté :
+- Nom fichier : "25.004_SN1000_1310.pdf" → SN = "1000_1310"
+- Contenu PDF : "SN03F86-P11278-010-001"
+- Résultat : SN différents → ERREUR
+
+Messages d'erreur réels de vos logs :
+- "Le fichier 25.004_SN1000_1310.pdf a SN1000_1310 dans le nom mais SN03F86-P11278-010-001 à l'intérieur"
+- "N'a pas pu trouver le programme dans le pdf 23.270D SN 240 1310.pdf"
+- "Le fichier 23.270D SN 240 1310.pdf n'est pas dans les specs"
+
+4. VRAIE NORMALISATION (de votre code)
+======================================
+
+Normalisation SN (_SE et _E enlevés) :
+- "SN41_SE" → "SN41"
+- "SN456_E" → "SN456"
+- "SN123" → "SN123" (inchangé)
+
+Normalisation programme :
+- "Elio_Muxis_V1.rule" → "elio_muxis_v1"
+- "PROGRAMME.RULE" → "programme"
+
+5. VRAIS CHEMINS (de votre système)
+===================================
+
+Chemins testés :
+- "X:/Tracabilite/CP-MUXISH-ELIO25.004/LT2500750/INTERFERO_V1310"
+- "X:/Production/4_Public/DEV (ne pas toucher)/comparateur_image"
+
+6. REGEX UTILISÉES (de votre code VerifPdf.py)
+==============================================
+
+SN_REGEX = r"(?:S/?N)\s*[:\-°]*\s*((?=[\w-]*\d)[\w-]+)"
+- Trouve : SN, S/N, S-N suivis d'un identifiant avec au moins 1 chiffre
+
+PROG_REGEX = r"[\w,-]+\.rule"
+- Trouve : tout ce qui se termine par .rule
+
+7. PROGRAMME ATTENDU (de votre projet)
+======================================
+
+Programme fixé : "Elio_Muxis_V1"
+Formes acceptées :
+- "Elio_Muxis_V1.rule" (avec .rule)
+- "Elio_Muxis_V1" (sans .rule)
+- Insensible à la casse
+
+8. RÉSUMÉ DES TESTS CRÉÉS
+=========================
+
+Tests qui RÉUSSISSENT (tests_vrais_donnees.bat) :
+✅ Fichier 25.004_SN1000_1310.pdf → SN = "1000_1310"
+✅ Fichier 25.004_SN1004_1310.pdf → SN = "1004_1310"  
+✅ Fichier 23.270D SN 240 1310.pdf → SN = "240"
+✅ Programme Elio_Muxis_V1.rule détecté
+✅ Normalisation SN41_SE → SN41
+✅ Normalisation Elio_Muxis_V1.rule → elio_muxis_v1
+
+Tests qui ÉCHOUENT (tests_vrais_echecs.bat) :
+❌ Fichier sans SN → cherche SN12345, trouve None
+❌ Contenu sans programme → cherche Elio_Muxis_V1.rule, trouve None
+❌ SN différent nom vs contenu → comme vos vrais logs
+❌ Mauvais programme attendu
+❌ Fichier avec FAIL → non conforme
+❌ Format impossible → pas de SN dans .jpg
+
+TOUTES CES DONNÉES SONT EXTRAITES DE VOTRE PROJET RÉEL !

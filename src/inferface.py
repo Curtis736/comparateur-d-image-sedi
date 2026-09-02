@@ -18,7 +18,7 @@ class InterfaceVerificationPDF:
         
         # Variables
         self.selected_folder = None
-        self.program_name = "Elio_Muxis_V1"
+        self.program_name = "Elio_Muxis_V1 / Dichroique_940-1310"
         self.is_verifying = False
         self.verification_results = []
         self.pdf_paths = []
@@ -77,7 +77,7 @@ class InterfaceVerificationPDF:
         # Nom du programme
         ttk.Label(config_frame, text="🔧 Programme attendu:", style='Header.TLabel').grid(row=1, column=0, sticky=tk.W, pady=5)
         
-        self.program_var = tk.StringVar(value="Elio_Muxis_V1")
+        self.program_var = tk.StringVar(value="Elio_Muxis_V1 / Dichroique_940-1310")
         program_entry = ttk.Entry(config_frame, textvariable=self.program_var, width=30, state='readonly')
         program_entry.grid(row=1, column=1, sticky=tk.W, padx=(10, 0), pady=5)
         
@@ -163,7 +163,7 @@ class InterfaceVerificationPDF:
         # Message initial
         self.logs_text.insert(tk.END, "🚀 Vérificateur de PDFs initialisé\n")
         self.logs_text.insert(tk.END, "Sélectionnez un dossier pour commencer.\n")
-        self.logs_text.insert(tk.END, "Programme attendu fixé: Elio_Muxis_V1\n\n")
+        self.logs_text.insert(tk.END, "Programmes: Elio_Muxis_V1 (dossier standard) ou Dichroique_940-1310 (dossier finissant par DICRO)\n\n")
         self.logs_text.see(tk.END)
         
     def setup_log_callbacks(self):
@@ -173,13 +173,28 @@ class InterfaceVerificationPDF:
         Log.AddCallback(Log.Lvl.ERR, self.add_log_error)
         Log.AddCallback(Log.Lvl.VERB, self.add_log_verbose)
         
+    def _update_expected_program_display(self):
+        """Met à jour l'affichage du profil attendu selon le nom du dossier."""
+        if self.selected_folder:
+            expected = VerifPdfRoutine._get_expected_program_for_folder(self.selected_folder)
+            self.program_name = expected
+            self.program_var.set(expected)
+        else:
+            self.program_name = "Elio_Muxis_V1 / Dichroique_940-1310"
+            self.program_var.set("Elio_Muxis_V1 / Dichroique_940-1310")
+
     def select_folder(self):
         """Sélectionne un dossier à vérifier"""
         folder = filedialog.askdirectory(title="Sélectionner le dossier contenant les PDFs")
         if folder:
             self.selected_folder = folder
             self.folder_var.set(folder)
+            self._update_expected_program_display()
             Log.Message(f"Dossier sélectionné: {folder}")
+            if VerifPdfRoutine._is_dicro_folder(folder):
+                Log.Message(f"Profil attendu (dossier DICRO): {VerifPdfRoutine.DICRO_PROGRAM}")
+            else:
+                Log.Message(f"Profil attendu: {VerifPdfRoutine.DEFAULT_PROGRAM}")
             
             # Compter les PDFs dans le dossier
             pdf_count = 0
@@ -222,10 +237,8 @@ class InterfaceVerificationPDF:
         """Exécute la vérification"""
         try:
             Log.Message(f"Début de la vérification du dossier: {self.selected_folder}")
-            if self.program_name:
-                Log.Message(f"Programme attendu: {self.program_name}")
-            else:
-                Log.Message("Programme attendu: (non spécifié) — vérification de la présence d'au moins un .rule")
+            expected = VerifPdfRoutine._get_expected_program_for_folder(self.selected_folder)
+            Log.Message(f"Profil attendu pour ce dossier: {expected}")
             
             # Compter les fichiers PDF
             pdf_files = [f for f in os.listdir(self.selected_folder) if f.lower().endswith('.pdf')]
@@ -239,7 +252,7 @@ class InterfaceVerificationPDF:
             Log.Message(f"Nombre de fichiers PDF à vérifier: {total_files}")
             
             # Lancer la vérification
-            success = VerifPdfRoutine.VerifyFolder(self.selected_folder, self.program_name)
+            success = VerifPdfRoutine.VerifyFolder(self.selected_folder, None)
             
             # Mettre à jour la progression
             self.root.after(0, lambda: self.progress_var.set(100))

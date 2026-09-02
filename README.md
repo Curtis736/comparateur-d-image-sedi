@@ -16,8 +16,9 @@ pip install -r requirements.txt
 Si l’installation échoue à cause de `tkinter`, supprimez la ligne `tkinter` de `requirements.txt` (Tkinter est livré avec Python sur Windows et ne s’installe pas via pip).
 
 ## Lancement rapide
+Double-clic sur `comparateur_image.bat`, ou :
 ```bash
-python inferface.py
+python src/inferface.py
 ```
 
 ## Utilisation
@@ -66,10 +67,14 @@ Voici, étape par étape, ce que fait l’application pour chaque fichier du dos
 - **Compteurs**: affichage approximatif du nombre de fichiers traités et du nombre de messages/erreurs
 
 ## Structure du projet
-- `inferface.py` : Interface graphique principale (Tkinter)
-- `VerifPdf.py` : Extraction du texte PDF et détection (SN, programme)
-- `VerifPdfRoutine.py` : Routine de vérification d’un dossier
-- `Log.py` : Système de logs avec callbacks
+- `comparateur_image.bat` : Lancement Windows
+- `src/` : Code source
+  - `inferface.py` : Interface graphique principale (Tkinter)
+  - `VerifPdf.py` : Extraction du texte PDF et détection (SN, programme)
+  - `VerifPdfRoutine.py` : Routine de vérification d’un dossier
+  - `Log.py` : Système de logs avec callbacks
+- `docs/` : Documentation technique
+- `Tests/` : Scripts de test et PDF d’exemple (`Tests/Fichiers_Test/`)
 - `requirements.txt` : Dépendances Python
 
 ## Format attendu des fichiers

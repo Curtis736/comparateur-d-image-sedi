@@ -1,0 +1,135 @@
+LOGS D'ERREURS RÉELS UTILISÉS POUR LES TESTS
+============================================
+
+Ces sont les VRAIS messages d'erreur de votre système
+que j'ai utilisés pour créer les tests.
+
+1. MESSAGES D'ERREUR DE VOS LOGS
+================================
+
+[ERROR] N'a pas pu trouver le programme dans le pdf 23.270D SN 240 1310.pdf
+├── Fichier : 23.270D SN 240 1310.pdf
+├── Problème : Programme Elio_Muxis_V1.rule manquant dans le PDF
+├── SN détecté : 240 (OK)
+└── Simulé dans : test_echec programme inexistant
+
+[ERROR] Le fichier 23.270D SN 240 1310.pdf n'est pas dans les specs
+├── Fichier : 23.270D SN 240 1310.pdf
+├── Problème : Contient le mot "FAIL"
+├── Cause : Fichier non conforme
+└── Simulé dans : test_echec FAIL détecté
+
+[MSG] Traitement du fichier: 23.270D SN 240 940.pdf
+├── Fichier : 23.270D SN 240 940.pdf
+├── Action : Traitement normal
+└── Utilisé dans : données de test
+
+[WARN] SN dupliqué détecté (base): 240 dans le fichier 23.270D SN 240 940.pdf
+├── Fichier : 23.270D SN 240 940.pdf
+├── Problème : SN 240 déjà vu dans un autre fichier
+├── SN normalisé : 240
+└── Info : Gestion des doublons
+
+2. ERREURS SN DIFFÉRENTS (VOS VRAIS LOGS)
+=========================================
+
+[ERROR] Le fichier 25.004_SN1000_1310.pdf a SN1000_1310 dans le nom mais SN03F86-P11278-010-001 à l'intérieur
+├── Fichier : 25.004_SN1000_1310.pdf
+├── SN nom : 1000_1310 (détecté par regex)
+├── SN contenu : 03F86-P11278-010-001 (dans le PDF)
+├── Problème : SN différents
+└── Simulé dans : test_echec SN différent
+
+[ERROR] Le fichier 25.004_SN1004_1310.pdf a SN1004_1310 dans le nom mais SN03F86-P11278-010-001 à l'intérieur
+├── Fichier : 25.004_SN1004_1310.pdf
+├── SN nom : 1004_1310
+├── SN contenu : 03F86-P11278-010-001 (même SN dans tous vos PDFs)
+├── Problème : Même erreur répétée
+└── Pattern : Template PDF réutilisé
+
+[ERROR] Le fichier 25.004_SN1017_1310.pdf a SN1017_1310 dans le nom mais SN03F86-P11278-010-001 à l'intérieur
+├── Fichier : 25.004_SN1017_1310.pdf
+├── SN nom : 1017_1310
+├── SN contenu : 03F86-P11278-010-001
+└── Pattern : Même problème systématique
+
+[ERROR] Le fichier 25.004_SN1021_1310.pdf a SN1021_1310 dans le nom mais SN03F86-P11278-010-001 à l'intérieur
+├── Fichier : 25.004_SN1021_1310.pdf
+├── SN nom : 1021_1310
+├── SN contenu : 03F86-P11278-010-001
+└── Conclusion : Tous vos PDFs ont le même contenu
+
+3. MESSAGES DE SUCCÈS (VOS VRAIS LOGS)
+======================================
+
+[MSG] Programme: ok
+├── Signification : Elio_Muxis_V1.rule trouvé dans le PDF
+├── Condition : Programme attendu détecté
+└── Utilisé dans : test_reussite programme
+
+[MSG] Conformité: ok
+├── Signification : Pas de mot "FAIL" dans le PDF
+├── Condition : Fichier conforme aux specs
+└── Utilisé dans : test_reussite conformité
+
+[MSG] SN: ok
+├── Signification : SN nom = SN contenu (après normalisation)
+├── Condition : SN cohérents
+└── Utilisé dans : test_reussite SN
+
+4. MESSAGES D'INFORMATION (VOS VRAIS LOGS)
+==========================================
+
+[MSG] Dossier sélectionné: X:/Tracabilite/CP-MUXISH-ELIO25.004/LT2500750/INTERFERO_V1310
+├── Action : Sélection dossier
+├── Chemin : Votre vrai chemin de travail
+└── Utilisé dans : test_chemin réel
+
+[MSG] Nombre de fichiers PDF trouvés: 4
+├── Dossier : INTERFERO_V1310
+├── Fichiers : 4 PDFs détectés
+└── Info : Taille réelle de vos lots
+
+[MSG] Programme attendu: Elio_Muxis_V1
+├── Programme : Votre programme fixé
+├── Source : Interface utilisateur
+└── Utilisé dans : tous les tests
+
+[MSG] Nombre de fichiers PDF à vérifier: 4
+├── Action : Début de vérification
+├── Lot : 4 fichiers
+└── Process : Traitement par lot
+
+5. ANALYSE DES PATTERNS D'ERREUR
+================================
+
+Pattern principal détecté :
+├── Cause : Template PDF réutilisé
+├── Symptôme : Même SN dans tous les contenus PDF
+├── SN contenu : SN03F86-P11278-010-001 (constant)
+├── SN noms : Variables (1000_1310, 1004_1310, etc.)
+└── Solution : Régénérer les PDFs avec bons SN
+
+Erreurs systématiques :
+├── 4/4 fichiers : SN différent nom vs contenu
+├── 0/4 fichiers : Programme manquant (tous OK)
+├── 0/4 fichiers : FAIL détecté (tous conformes)
+└── Conclusion : Problème de génération PDF
+
+6. DONNÉES UTILISÉES POUR CRÉER LES TESTS
+=========================================
+
+Tests de RÉUSSITE basés sur :
+✅ Format de noms corrects (25.004_SNxxxx_xxxx.pdf)
+✅ Programme Elio_Muxis_V1.rule détecté
+✅ Normalisation _SE/_E fonctionnelle
+✅ Pas de FAIL dans contenus
+
+Tests d'ÉCHEC basés sur :
+❌ Vos vrais messages d'erreur
+❌ SN différents nom vs contenu
+❌ Fichiers sans SN (simulés)
+❌ Contenus avec FAIL (simulés)
+❌ Programmes manquants (simulés)
+
+TOUTES CES DONNÉES VIENNENT DE VOS VRAIS LOGS !

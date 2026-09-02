@@ -1,0 +1,130 @@
+EXEMPLES DE FICHIERS DE TEST
+============================
+
+Ces fichiers simulent vos vrais fichiers PDF pour les tests.
+
+1. NOMS DE FICHIERS QUI MARCHENT
+================================
+
+25.004_SN1000_1310.pdf
+├── SN détecté : "1000_1310"
+├── Format : numéro.numéro_SNxxxx_xxxx.pdf
+└── Utilisé dans : test qui réussit
+
+25.004_SN1004_1310.pdf
+├── SN détecté : "1004_1310"  
+├── Format : numéro.numéro_SNxxxx_xxxx.pdf
+└── Utilisé dans : test qui réussit
+
+23.270D SN 240 1310.pdf
+├── SN détecté : "240"
+├── Format : numéro.numéroD SN xxx xxxx.pdf (avec espaces)
+└── Utilisé dans : test qui réussit
+
+2. NOMS DE FICHIERS QUI NE MARCHENT PAS
+=======================================
+
+document_rapport.pdf
+├── SN détecté : None (pas de SN)
+├── Problème : aucun motif SN trouvé
+└── Utilisé dans : test qui échoue
+
+image_scan.jpg
+├── SN détecté : None (pas de SN + mauvaise extension)
+├── Problème : pas un PDF
+└── Utilisé dans : test qui échoue
+
+3. CONTENUS PDF QUI MARCHENT
+============================
+
+"Rapport SN03F86-P11278-010-001 avec Elio_Muxis_V1.rule validé"
+├── SN détecté : "SN03F86-P11278-010-001"
+├── Programme détecté : "Elio_Muxis_V1.rule"
+├── FAIL : Non
+└── Utilisé dans : test qui réussit
+
+"Test programme Elio_Muxis_V1.rule OK"
+├── SN détecté : None (pas de SN dans ce contenu)
+├── Programme détecté : "Elio_Muxis_V1.rule"
+├── FAIL : Non
+└── Utilisé dans : test programme
+
+4. CONTENUS PDF QUI NE MARCHENT PAS
+===================================
+
+"Rapport de test sans programme"
+├── SN détecté : None
+├── Programme détecté : None (pas de .rule)
+├── FAIL : Non
+├── Problème : pas de programme
+└── Utilisé dans : test qui échoue
+
+"Résultat test FAIL - non conforme"
+├── SN détecté : None
+├── Programme détecté : None
+├── FAIL : Oui (contient "FAIL")
+├── Problème : fichier non conforme
+└── Utilisé dans : test qui échoue
+
+5. CAS DE NORMALISATION
+=======================
+
+SN41_SE → SN41
+├── Original : "SN41_SE"
+├── Normalisé : "SN41"
+├── Règle : enlève _SE à la fin
+└── Utilisé dans : test normalisation
+
+SN456_E → SN456
+├── Original : "SN456_E"
+├── Normalisé : "SN456"
+├── Règle : enlève _E à la fin
+└── Utilisé dans : test normalisation
+
+Elio_Muxis_V1.rule → elio_muxis_v1
+├── Original : "Elio_Muxis_V1.rule"
+├── Normalisé : "elio_muxis_v1"
+├── Règle : minuscules + enlève .rule
+└── Utilisé dans : test normalisation
+
+6. PROBLÈME RÉEL SIMULÉ
+=======================
+
+Nom fichier : 25.004_SN1000_1310.pdf
+├── SN nom : "1000_1310"
+└── Extrait par regex de votre code
+
+Contenu PDF : SN03F86-P11278-010-001
+├── SN contenu : "SN03F86-P11278-010-001"
+└── Votre vrai SN des logs d'erreur
+
+Comparaison : "1000_1310" ≠ "SN03F86-P11278-010-001"
+├── Résultat : ÉCHEC
+├── Message : "SN différents"
+└── Correspond à vos vrais logs d'erreur
+
+7. REGEX TESTÉES
+================
+
+Votre SN_REGEX : r"(?:S/?N)\s*[:\-°]*\s*((?=[\w-]*\d)[\w-]+)"
+
+Tests positifs :
+✅ "SN12345" → "12345"
+✅ "SN 240" → "240"  
+✅ "SN1000_1310" → "1000_1310"
+✅ "S/N ABC-123" → "ABC-123"
+
+Tests négatifs :
+❌ "document.pdf" → None
+❌ "SN" → None (pas de chiffre)
+❌ "SNDevice" → None (pas de chiffre)
+
+Votre PROG_REGEX : r"[\w,-]+\.rule"
+
+Tests positifs :
+✅ "Elio_Muxis_V1.rule" → "Elio_Muxis_V1.rule"
+✅ "Programme-Test.rule" → "Programme-Test.rule"
+
+Tests négatifs :
+❌ "programme.txt" → None
+❌ "pas de programme" → None

@@ -18,7 +18,8 @@ if errorlevel 1 (
 )
 
 REM Lance l'application
-"%PYTHON_CMD%" inferface.py
+set "PYTHONPATH=%~dp0src;%PYTHONPATH%"
+"%PYTHON_CMD%" "%~dp0src\inferface.py"
 
 if errorlevel 1 (
     echo.

@@ -1,0 +1,123 @@
+CORRECTIONS APPORTÉES AU CODE
+=============================
+
+Date : 26/11/2025
+Basé sur l'analyse des logs d'erreur réels
+
+PROBLÈME 1 : Normalisation SN avec suffixe _RCI
+===============================================
+
+Erreur détectée :
+- Nom fichier : "23.199_SN37-24-01_RCI ind A.pdf"
+- SN détecté dans nom : "SN37-24-01_RCI"
+- SN détecté dans contenu : "SN37-24-01"
+- Résultat : ERREUR "SN différents"
+
+Cause :
+- La fonction _normalize_sn() ne gérait que les suffixes _SE et _E
+- Le suffixe _RCI n'était pas pris en compte
+- Donc "SN37-24-01_RCI" ≠ "SN37-24-01" après normalisation
+
+Correction :
+- Ajout de _RCI dans la normalisation
+- Nouvelle regex : r'_(?:SE|E|RCI)$'
+- Maintenant "SN37-24-01_RCI" → "SN37-24-01" après normalisation
+- Les deux SN sont maintenant considérés identiques
+
+Fichier modifié : VerifPdfRoutine.py ligne 19
+
+PROBLÈME 2 : Détection programme partiel
+========================================
+
+Erreur détectée :
+- Programme attendu : "Elio_Muxis_V1"
+- Programme trouvé : "V1.rule"
+- Résultat : ERREUR "n'a pas le bon programme"
+
+Cause :
+- Le regex PROG_REGEX = r"[\w,-]+\.rule" capture le premier .rule trouvé
+- Si le texte contient "V1.rule" avant "Elio_Muxis_V1.rule", il capture "V1.rule"
+- Le code utilisait le premier programme trouvé sans vérifier s'il correspond
+- "V1.rule" seul n'est pas logique - c'est un programme partiel
+
+Correction :
+- Filtrage des programmes partiels non logiques (< 8 caractères comme "V1.rule")
+- Si plusieurs programmes trouvés :
+  1. Cherche d'abord celui qui correspond exactement
+  2. Sinon, filtre les programmes trop courts (partiels)
+  3. Prend le plus long parmi les programmes complets
+  4. Vérifie si le programme complet contient le nom attendu
+- Si un seul programme trouvé mais qu'il est partiel :
+  - Vérifie si le nom attendu complet est dans le texte
+  - Si oui, accepte (le programme est présent même si mal détecté)
+  - Si non, erreur
+- Logique : "V1.rule" seul n'est pas accepté, doit trouver "Elio_Muxis_V1.rule" complet
+
+Fichier modifié : VerifPdfRoutine.py lignes 112-145
+
+PROBLÈME 3 : Programme avec espaces non capturé
+===============================================
+
+Erreur détectée :
+- PDF contient : "Elio Muxis V1.rule" (avec espace)
+- Programme trouvé : "V1.rule" (partiel)
+- Résultat : ERREUR "n'a pas le bon programme"
+
+Cause :
+- Le regex PROG_REGEX = r"[\w,-]+\.rule" ne capture pas les espaces
+- "Elio Muxis V1.rule" → le regex capture seulement "V1.rule" (partie sans espace)
+
+Correction :
+- Amélioration du regex : r"[\w\s,-]+\.rule"
+- Capture maintenant les espaces dans les noms de programmes
+- "Elio Muxis V1.rule" est maintenant capturé correctement
+
+Fichier modifié : VerifPdf.py ligne 9
+
+PROBLÈME 4 : Mauvais SN détecté (Device s/n au lieu de Serial number)
+=====================================================================
+
+Erreur détectée :
+- Nom fichier : "SN37-24-05.pdf" → SN = "37-24-05"
+- PDF contient : "SN.37.24.05" (Serial number) et "SN4103434784-557-10" (Device s/n)
+- SN trouvé : "4103434784-557-10" (Device s/n - mauvais)
+- Résultat : ERREUR "SN différents"
+
+Cause :
+- GetSnFromString() trouve le PREMIER SN dans le texte
+- Le Device s/n apparaît avant le Serial number dans le PDF
+- Le regex ne distingue pas les différents types de SN
+
+Correction :
+- Création de GetAllSnsFromString() pour trouver TOUS les SN
+- Amélioration de la logique pour choisir le SN qui correspond au nom de fichier
+- Priorité : SN qui correspond exactement > SN qui contient le SN attendu > premier trouvé
+- Normalisation améliorée : convertit les points en tirets ("37.24.05" → "37-24-05")
+- Regex SN amélioré : supporte maintenant les points comme séparateurs
+
+Fichiers modifiés : 
+- VerifPdf.py : ligne 7 (regex), nouvelle fonction GetAllSnsFromString()
+- VerifPdfRoutine.py : lignes 72-95 (logique de sélection SN), ligne 20 (normalisation)
+
+RÉSULTATS ATTENDUS APRÈS CORRECTION
+===================================
+
+Avant correction :
+❌ "23.199_SN37-24-01_RCI ind A.pdf" → ERREUR SN différents
+❌ "SN37-24-01.pdf" → ERREUR programme V1.rule au lieu de Elio_Muxis_V1
+
+Après correction :
+✅ "23.199_SN37-24-01_RCI ind A.pdf" → SN: ok (normalisation _RCI)
+✅ "SN37-24-01.pdf" → Programme: ok (recherche du bon programme parmi plusieurs)
+
+TESTS À METTRE À JOUR
+=====================
+
+Les tests dans Tests/ doivent être mis à jour pour refléter :
+1. La normalisation _RCI maintenant supportée
+2. La meilleure gestion des programmes multiples
+
+Exemples de nouveaux tests à ajouter :
+- Test normalisation SN37-24-01_RCI → SN37-24-01
+- Test programme avec plusieurs .rule dans le texte
+- Test fichier avec format _RCI dans le nom
